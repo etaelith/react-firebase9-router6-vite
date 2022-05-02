@@ -1,94 +1,85 @@
-import { useContext, useState } from "react";
+import { useContext } from "react";
+import { useForm } from "react-hook-form";
+import { useNavigate } from "react-router-dom";
 import { UserContext } from "../context/UserProvider";
-import { useForm } from 'react-hook-form'
-import {useNavigate} from "react-router-dom"
+import { erroresFirebase } from "../utils/erroresFirebase";
+import { formValidate } from "../utils/formValidate";
+
+import FormError from "../components/FormError";
+import FormInput from "../components/FormInput";
 
 const Register = () => {
-
     const navegate = useNavigate();
-    const { registerUser } = useContext(UserContext)
+    const { registerUser } = useContext(UserContext);
+    const { required, patternEmail, minLength, validateTrim, validateEquals } =
+        formValidate();
 
-    const { 
-        register, 
-        handleSubmit, 
-        formState: {errors},
+    const {
+        register,
+        handleSubmit,
+        formState: { errors },
         getValues,
         setError,
-    } = useForm()
+    } = useForm({
+        defaultValues: {
+            email: "bluuweb1@test.com",
+            password: "123123",
+            repassword: "123123",
+        },
+    });
 
-    const onSubmit = async ({email, password}) => {
+    const onSubmit = async ({ email, password }) => {
         try {
-            await registerUser(email, password)
-            console.log('user created')
-            navegate("/")
+            await registerUser(email, password);
+            navegate("/");
         } catch (error) {
-            switch(error.code){
-                case "auth/email-already-in-use":
-                    setError("email", {
-                        message: "User exist"
-                    })
-                    break;
-                default:
-                    console.log('error on server')
-            }
+            console.log(error.code);
+            setError("firebase", {
+                message: erroresFirebase(error.code),
+            });
         }
-    } 
-
+    };
 
     return (
         <>
-            <h1>Register</h1>
+            <h1>User Register</h1>
+            <FormError error={errors.firebase} />
             <form onSubmit={handleSubmit(onSubmit)}>
-                <input 
-                    type="email" 
-                    placeholder="Input email"
-                    {...register ("email", {
-                        required:{
-                            value: true,
-                            message: "Required complete this field"
-                        },
-                        pattern: {
-                            value: /[a-z0-9]+(\.[_a-z0-9]+)*@[a-z0-9-]+(\.[a-z0-9-]+)*(\.[a-z]{2,15})/,
-                            message: "Complete with email format"
-                        }
+                <FormInput
+                    type="email"
+                    placeholder="Ingrese email"
+                    {...register("email", {
+                        required,
+                        pattern: patternEmail,
                     })}
-                    />
-                    {errors.email && <span>{errors.email.message}</span>}
-                <input 
-                    type="password" 
-                    placeholder="insert password" 
-                    {...register ("password", {minLength:{
-                        value : 6,
-                        message : "Min 6 characters length"},
-                        validate: {
-                            trim: (v) => {
-                                if(!v.trim()){
-                                    return "do not leave empty spaces";
-                                } else {
-                                    return true;
-                                }
-                            }
-                        }   
+                >
+                    <FormError error={errors.email} />
+                </FormInput>
+
+                <FormInput
+                    type="password"
+                    placeholder="Ingrese Password"
+                    {...register("password", {
+                        minLength,
+                        validate: validateTrim,
                     })}
-                />
-                    {errors.password && <span>{errors.password.message}</span>}
-                <input 
-                    type="password" 
-                    placeholder="insert password" 
-                    {...register ("checkPassword",{
-                        validate: {
-                            equals: v => v === getValues("password") || 'Passwords not match',
-                            /* message: 'do not match' */
-                        }
+                >
+                    <FormError error={errors.password} />
+                </FormInput>
+
+                <FormInput
+                    type="password"
+                    placeholder="Ingrese Password"
+                    {...register("repassword", {
+                        validate: validateEquals(getValues),
                     })}
-                />
-                    {
-                        errors.checkPassword && <span>{errors.checkPassword.message}</span>
-                    }
+                >
+                    <FormError error={errors.repassword} />
+                </FormInput>
                 <button type="submit">Register</button>
             </form>
         </>
-    )
-}
+    );
+};
 
 export default Register;

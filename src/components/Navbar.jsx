@@ -1,37 +1,32 @@
 import { useContext } from "react";
-import { NavLink } from "react-router-dom"
-import { UserContext } from "../context/UserProvider"
-
+import { NavLink } from "react-router-dom";
+import { UserContext } from "../context/UserProvider";
 const Navbar = () => {
+    const { user, signOutUser } = useContext(UserContext);
 
-    const {user, signOutUser} = useContext(UserContext)
-
-    const handleLogOut = async () => {
+    const handleClickLogout = async () => {
         try {
-           await signOutUser()
+            await signOutUser();
         } catch (error) {
-            console.log(error.code)
+            console.log(error.code);
         }
-    }
-
+    };
 
     return (
         <div>
-            {
-                user ? (
-                    <>
-                        <NavLink to="/">Home</NavLink>
-                        <button onClick={handleLogOut}>LogOut</button>
-                    </>
-                ) : (
-                    <>
-                        <NavLink to="/login">Login</NavLink>
-                        <NavLink to="/register">Register</NavLink>
-                    </>
-                )
-            }
+            {user ? (
+                <>
+                    <NavLink to="/">Inicio | </NavLink>
+                    <button onClick={handleClickLogout}>Logout</button>
+                </>
+            ) : (
+                <>
+                    <NavLink to="/login">Login | </NavLink>
+                    <NavLink to="/register">Register | </NavLink>
+                </>
+            )}
         </div>
-    )
-}
+    );
+};
 
 export default Navbar;
