@@ -19,7 +19,7 @@ const App = () => {
       <h1>App</h1>
       <Routes>
         <Route 
-          path='/' 
+          path="/" 
           element={
             <RequireAuth>
               <Home />

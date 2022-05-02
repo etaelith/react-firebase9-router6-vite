@@ -7,8 +7,8 @@ const Login = () => {
     const [password, setPassword] = useState('etaelith@test.com')
 
 
-    const {loginUser} = useContext(UserContext)
-    const navegate = useNavigate()
+    const {loginUser} = useContext(UserContext);
+    const navegate = useNavigate();
 
 
     const handleSubmit = async (e) => {
@@ -17,7 +17,7 @@ const Login = () => {
         try {
             await loginUser(email, password)    
             console.log('User loged')
-            navegate('/')
+            navegate("")
         } catch (error) {
             console.log(error.code)
         }
